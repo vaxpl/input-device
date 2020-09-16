@@ -1,0 +1,19 @@
+[package]
+name = "input-device"
+version = "0.1.0"
+authors = ["Varphone Wong <varphone@qq.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bitflags = "1"
+poller = "0.2"
+serde = { version = "1", optional = true, features = ["serde_derive"] }
+
+[features]
+linux-evdev = []
+linux-mousedev = []
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
