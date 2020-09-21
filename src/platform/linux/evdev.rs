@@ -1207,6 +1207,7 @@ mod tests {
     #[test]
     fn test_device() {
         let mut dev = Device::open("/dev/input/event2").unwrap();
+        dev.set_non_blocking(true);
         match dev.read_one() {
             Ok(_ev) => {}
             Err(err) => match err.kind() {
