@@ -1,7 +1,6 @@
 #![allow(dead_code)]
 use crate::{
-    ButtonId, DeviceEvent, ElementState, KeyboardInput, MouseButton, MouseScrollDelta,
-    VirtualKeyCode,
+    ButtonId, ElementState, Event, KeyboardInput, MouseButton, MouseScrollDelta, VirtualKeyCode,
 };
 use libc::{input_event, timeval};
 use std::convert::{TryFrom, TryInto};
@@ -682,49 +681,49 @@ impl From<i32> for ElementState {
     }
 }
 
-impl From<RawEvent> for DeviceEvent {
+impl From<RawEvent> for Event {
     fn from(val: RawEvent) -> Self {
         match val.type_() {
             EV_KEY => match val.code() {
-                0..=255 => DeviceEvent::Key(KeyboardInput {
+                0..=255 => Event::Key(KeyboardInput {
                     scancode: val.code() as u32,
                     state: val.value().into(),
                     virtual_keycode: val.code().try_into().ok(),
                 }),
-                0x100..=0x109 => DeviceEvent::Button {
+                0x100..=0x109 => Event::Button {
                     button: val.code().into(),
                     state: val.value().into(),
                 },
-                0x110 => DeviceEvent::MouseButton {
+                0x110 => Event::MouseButton {
                     button: MouseButton::Left,
                     state: val.value().into(),
                 },
-                0x111 => DeviceEvent::MouseButton {
+                0x111 => Event::MouseButton {
                     button: MouseButton::Right,
                     state: val.value().into(),
                 },
-                0x112 => DeviceEvent::MouseButton {
+                0x112 => Event::MouseButton {
                     button: MouseButton::Middle,
                     state: val.value().into(),
                 },
-                _ => DeviceEvent::Key(KeyboardInput::default()),
+                _ => Event::Key(KeyboardInput::default()),
             },
             EV_REL => match val.code() {
-                REL_X => DeviceEvent::MouseMotion {
+                REL_X => Event::MouseMotion {
                     delta: (val.value() as i32 as f64, 0.0),
                 },
-                REL_Y => DeviceEvent::MouseMotion {
+                REL_Y => Event::MouseMotion {
                     delta: (0.0, val.value() as i32 as f64),
                 },
-                REL_WHEEL | REL_WHEEL_HI_RES => DeviceEvent::MouseWheel {
+                REL_WHEEL | REL_WHEEL_HI_RES => Event::MouseWheel {
                     delta: MouseScrollDelta::LineDelta(0.0, val.value() as i32 as f32),
                 },
-                REL_HWHEEL | REL_HWHEEL_HI_RES => DeviceEvent::MouseWheel {
+                REL_HWHEEL | REL_HWHEEL_HI_RES => Event::MouseWheel {
                     delta: MouseScrollDelta::LineDelta(val.value() as i32 as f32, 0.0),
                 },
-                _ => DeviceEvent::Dummy,
+                _ => Event::Dummy,
             },
-            _ => DeviceEvent::Dummy,
+            _ => Event::Dummy,
         }
     }
 }
@@ -1082,7 +1081,7 @@ pub struct Events<'a> {
 }
 
 impl<'a> Iterator for Events<'a> {
-    type Item = DeviceEvent;
+    type Item = Event;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.raw_events.next().map(|x| x.into())

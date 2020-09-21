@@ -28,7 +28,7 @@ pub use crate::DeviceId;
 ///
 /// Note that these events are delivered regardless of input focus.
 #[derive(Clone, Debug, PartialEq)]
-pub enum DeviceEvent {
+pub enum Event {
     Dummy,
     Added,
     Removed,
