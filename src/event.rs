@@ -110,6 +110,29 @@ pub struct KeyboardInput {
     pub virtual_keycode: Option<VirtualKeyCode>,
 }
 
+impl KeyboardInput {
+    // Determine the Key with `key_code` is in `Pressed` state.
+    pub fn is_key_pressed(&self, key_code: VirtualKeyCode) -> bool {
+        self.virtual_keycode == Some(key_code) && self.state == ElementState::Pressed
+    }
+
+    // Determine the Key with `key_code` is in `Released` state.
+    pub fn is_key_released(&self, key_code: VirtualKeyCode) -> bool {
+        self.virtual_keycode == Some(key_code) && self.state == ElementState::Released
+    }
+
+    // Determine the Key with `key_code` is in `Repeated` state.
+    pub fn is_key_repeated(&self, key_code: VirtualKeyCode) -> bool {
+        self.virtual_keycode == Some(key_code) && self.state == ElementState::Repeated
+    }
+
+    // Determine the Key with `key_code` is in `Pressed` or `Repeated` state.
+    pub fn is_key_triggered(&self, key_code: VirtualKeyCode) -> bool {
+        self.virtual_keycode == Some(key_code)
+            && (self.state == ElementState::Pressed || self.state == ElementState::Repeated)
+    }
+}
+
 /// Describes touch-screen input state.
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
