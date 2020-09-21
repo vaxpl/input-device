@@ -11,7 +11,7 @@ Input devices include keyboard, mouse, etc.
 documentation = "https://docs.rs/input-device"
 homepage = "https://github.com/varphone/input-device"
 readme = "README.md"
-categories = ["embedded", "external-ffi-bindings", "input"]
+categories = ["embedded", "gui", "hardware-support"]
 license = "MIT"
 
 [dependencies]
