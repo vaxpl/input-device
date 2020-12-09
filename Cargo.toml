@@ -9,7 +9,7 @@ description = """
 Input devices include keyboard, mouse, etc.
 """
 documentation = "https://docs.rs/input-device"
-homepage = "https://github.com/varphone/input-device"
+homepage = "https://github.com/vaxpl/input-device"
 readme = "README.md"
 categories = ["embedded", "gui", "hardware-support"]
 license = "MIT"
