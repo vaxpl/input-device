@@ -661,6 +661,9 @@ const REL_HWHEEL_HI_RES: u16 = 0x0c;
 const REL_MAX: u16 = 0x0f;
 const REL_CNT: u16 = REL_MAX + 1;
 
+const EVIOCGREP: usize = 2148025603;
+const EVIOCSREP: usize = 1074283779;
+
 impl From<u16> for ButtonId {
     fn from(val: u16) -> Self {
         match val {
@@ -1037,6 +1040,32 @@ impl Device {
                 flags &= !libc::O_NONBLOCK;
             }
             libc::fcntl(fd, libc::F_SETFL, flags);
+        }
+    }
+
+    /// Returns the repeat settings (delay, period) of the device.
+    pub fn repeat_settings(&self) -> Result<(u32, u32), std::io::Error> {
+        unsafe {
+            let fd = self.file.as_raw_fd();
+            let mut rep: [u32; 2] = [0, 0];
+            let err = libc::ioctl(fd, EVIOCGREP.try_into().unwrap(), &mut rep);
+            match err {
+                0 => Ok((rep[0], rep[1])),
+                _ => Err(std::io::Error::last_os_error()),
+            }
+        }
+    }
+
+    /// Change the repeat settings of the device.
+    pub fn set_repeat_settings(&mut self, delay: u32, peroid: u32) -> Result<(), std::io::Error> {
+        unsafe {
+            let fd = self.file.as_raw_fd();
+            let rep: [u32; 2] = [delay, peroid];
+            let err = libc::ioctl(fd, EVIOCGREP.try_into().unwrap(), &rep);
+            match err {
+                0 => Ok(()),
+                _ => Err(std::io::Error::last_os_error()),
+            }
         }
     }
 
