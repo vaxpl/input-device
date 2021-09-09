@@ -958,21 +958,21 @@ impl From<timeval> for TimeVal {
     }
 }
 
-impl Into<timeval> for TimeVal {
-    fn into(self) -> timeval {
-        self.inner
+impl From<TimeVal> for timeval {
+    fn from(val: TimeVal) -> timeval {
+        val.inner
     }
 }
 
-impl Into<(u32, u32)> for TimeVal {
-    fn into(self) -> (u32, u32) {
-        (self.inner.tv_sec as u32, self.inner.tv_usec as u32)
+impl From<TimeVal> for (u32, u32) {
+    fn from(val: TimeVal) -> Self {
+        (val.inner.tv_sec as u32, val.inner.tv_usec as u32)
     }
 }
 
-impl Into<u64> for TimeVal {
-    fn into(self) -> u64 {
-        self.inner.tv_sec as u64 * 1_000_000u64 + self.inner.tv_usec as u64
+impl From<TimeVal> for u64 {
+    fn from(val: TimeVal) -> Self {
+        val.inner.tv_sec as u64 * 1_000_000u64 + val.inner.tv_usec as u64
     }
 }
 
@@ -1161,7 +1161,7 @@ impl<'a> Iterator for RawEventsNoSync<'a> {
     type Item = RawEvent;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(ev) = self.raw_events.next() {
+        for ev in &mut self.raw_events {
             if ev.type_() != EV_SYN {
                 return Some(ev);
             }
@@ -1192,18 +1192,16 @@ impl<'a> RawEventsNoSync<'a> {
 pub fn enumerate() -> Vec<Device> {
     let mut devices = Vec::new();
     if let Ok(dir) = fs::read_dir("/dev/input") {
-        for entry in dir {
-            if let Ok(entry) = entry {
-                let path = entry.path();
-                if !path.is_dir() {
-                    if let Some(name) = path.file_name() {
-                        if !name.to_str().unwrap_or("").starts_with("event") {
-                            continue;
-                        }
+        for entry in dir.flatten() {
+            let path = entry.path();
+            if !path.is_dir() {
+                if let Some(name) = path.file_name() {
+                    if !name.to_str().unwrap_or("").starts_with("event") {
+                        continue;
                     }
-                    if let Ok(dev) = Device::open(path) {
-                        devices.push(dev);
-                    }
+                }
+                if let Ok(dev) = Device::open(path) {
+                    devices.push(dev);
                 }
             }
         }
